@@ -1,32 +1,141 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Equal World Shipping — Admin Dashboard</title>
-  <link rel="stylesheet" href="admin.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Equal World Shipping — Admin Control Center</title>
+<link rel="stylesheet" href="admin.css">
 </head>
 <body>
-<header class="topbar"><div><strong>Equal World Shipping</strong><span>Admin Dashboard</span></div><button id="logoutBtn" class="ghost hidden">Log out</button></header>
-<main class="container">
-  <section id="loginView" class="card login-card">
-    <h1>Admin sign in</h1><p>Manage shipments and reply to customer live chats.</p>
-    <form id="loginForm"><label>Email<input id="email" type="email" required autocomplete="username"></label><label>Password<input id="password" type="password" required autocomplete="current-password"></label><button>Sign in</button><p id="loginError" class="error"></p></form>
-  </section>
-  <section id="appView" class="hidden">
-    <div class="tabs"><button class="tab active" data-tab="shipments">Shipments</button><button class="tab" data-tab="chat">Live Chat</button></div>
-    <section id="shipmentsTab" class="tabpane">
-      <div class="grid two"><div class="card"><h2>Create shipment</h2><form id="shipmentForm" class="formgrid">
-        <label>Tracking code<input id="tracking_code" maxlength="32" placeholder="EWS123456789"></label>
-        <label>Sender name<input id="sender_name"></label><label>Receiver name<input id="receiver_name"></label><label>Receiver email<input id="receiver_email" type="email"></label>
-        <label>Origin<input id="origin" required placeholder="Lagos, Nigeria"></label><label>Destination<input id="destination" required placeholder="London, United Kingdom"></label>
-        <label>Service<input id="service" value="Express Worldwide"></label><label>Status<select id="status"><option>Pending</option><option>Picked Up</option><option>In Transit</option><option>Out for Delivery</option><option>Delivered</option></select></label>
-        <label>Estimated delivery<input id="estimated_delivery" type="date"></label><button type="submit">Create shipment</button><p id="shipmentFormMsg" class="notice"></p>
-      </form></div>
-      <div class="card"><h2>Selected shipment</h2><div id="selectedShipment"><p>Select a shipment below.</p></div><form id="eventForm" class="formgrid hidden"><h3>Add tracking event</h3><input id="event_shipment_id" type="hidden"><label>Status<select id="event_status"><option>Picked Up</option><option>In Transit</option><option>Out for Delivery</option><option>Delivered</option></select></label><label>Location<input id="event_location" required></label><label>Description<textarea id="event_description" rows="3"></textarea></label><button>Add event</button><p id="eventMsg" class="notice"></p></form></div></div>
-      <div class="card"><div class="row"><h2>Shipments</h2><button id="refreshShipments" class="ghost">Refresh</button></div><div class="tablewrap"><table><thead><tr><th>Tracking</th><th>Status</th><th>Origin</th><th>Destination</th><th>Updated</th><th></th></tr></thead><tbody id="shipmentRows"><tr><td colspan="6">Loading…</td></tr></tbody></table></div></div>
+<div id="loginView" class="screen">
+  <div class="login-card">
+    <div class="brand">Equal World Shipping</div>
+    <h1>Admin Control Center</h1>
+    <p>Sign in with your separate administrator account. <strong>No shipment tracking code is required anywhere on this page.</strong></p>
+    <form id="loginForm">
+      <label>Email<input id="adminEmail" type="email" autocomplete="username" required></label>
+      <label>Password<input id="adminPassword" type="password" autocomplete="current-password" required></label>
+      <button type="submit">Sign in securely</button>
+      <p id="loginError" class="error"></p>
+    </form>
+  </div>
+</div>
+
+<div id="appView" class="app hidden">
+  <header class="topbar">
+    <div class="brandline"><strong>Equal World Shipping</strong><span>Admin Control Center</span></div>
+    <div class="top-actions">
+      <button id="notificationTopBtn" class="icon-btn" title="Notifications">🔔 <span id="notificationCount" class="count">0</span></button>
+      <span class="admin-pill">Admin</span>
+      <button id="logoutBtn" class="ghost">Log out</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="welcome">
+      <div>
+        <p class="eyebrow">Welcome back</p>
+        <h1>Manage your shipping operation</h1>
+        <p>Messages, notifications, invitations, shipments and customer support are all in one place.</p>
+      </div>
+      <div class="quick-actions">
+        <button data-tab="create">＋ New shipment</button>
+        <button data-tab="messages" class="secondary">💬 Messages</button>
+        <button data-tab="invite" class="secondary">👥 Invite people</button>
+      </div>
     </section>
-    <section id="chatTab" class="tabpane hidden"><div class="grid chatgrid"><div class="card"><div class="row"><h2>Conversations</h2><button id="refreshChats" class="ghost">Refresh</button></div><div id="chatSessions" class="sessions"></div></div><div class="card chatwindow"><h2 id="chatTitle">Select a conversation</h2><div id="adminMessages" class="messages"></div><form id="replyForm" class="reply hidden"><textarea id="replyInput" rows="3" placeholder="Write a reply…"></textarea><button>Send reply</button><span id="replyMsg" class="notice"></span></form></div></div></section>
-  </section>
-</main>
+
+    <section class="stats">
+      <div class="stat"><span>Total shipments</span><strong id="statShipments">0</strong></div>
+      <div class="stat"><span>In transit</span><strong id="statTransit">0</strong></div>
+      <div class="stat"><span>Delivered</span><strong id="statDelivered">0</strong></div>
+      <div class="stat"><span>Open messages</span><strong id="statChats">0</strong></div>
+    </section>
+
+    <nav class="tabs" aria-label="Admin sections">
+      <button class="tab active" data-tab="overview">Overview</button>
+      <button class="tab" data-tab="shipments">Shipments</button>
+      <button class="tab" data-tab="create">Create shipment</button>
+      <button class="tab" data-tab="messages">Messages <span id="messageBadge" class="tab-badge">0</span></button>
+      <button class="tab" data-tab="notifications">Notifications <span id="notificationBadge" class="tab-badge">0</span></button>
+      <button class="tab" data-tab="invite">Invite people</button>
+    </nav>
+
+    <section id="overviewTab" class="tab-panel">
+      <div class="panel-head"><div><h2>Today at a glance</h2><p>Quick access to the areas that need attention.</p></div><button id="refreshAll" class="secondary">Refresh</button></div>
+      <div class="overview-grid">
+        <article class="overview-card"><span>💬</span><h3>Messages</h3><p>Read customer conversations and reply from the dashboard.</p><button data-tab="messages">Open messages</button></article>
+        <article class="overview-card"><span>🔔</span><h3>Notifications</h3><p>See new chats, shipment activity and admin invitations.</p><button data-tab="notifications" class="secondary">View notifications</button></article>
+        <article class="overview-card"><span>👥</span><h3>Invite people</h3><p>Invite another trusted team member to the admin panel.</p><button data-tab="invite" class="secondary">Invite a teammate</button></article>
+      </div>
+      <div class="recent-grid">
+        <div class="mini-panel"><h3>Recent shipments</h3><div id="recentShipments"></div></div>
+        <div class="mini-panel"><h3>Recent notifications</h3><div id="recentNotifications"></div></div>
+      </div>
+    </section>
+
+    <section id="shipmentsTab" class="tab-panel hidden">
+      <div class="panel-head"><div><h2>Shipments</h2><p>Search, update and add tracking events.</p></div><button id="refreshShipments" class="secondary">Refresh</button></div>
+      <input id="shipmentSearch" class="search" placeholder="Search tracking code, sender, receiver, origin or destination">
+      <div id="shipmentList" class="cards"></div>
+    </section>
+
+    <section id="createTab" class="tab-panel hidden">
+      <div class="panel-head"><div><h2>Create shipment</h2><p>Create a new trackable shipment in Supabase.</p></div></div>
+      <form id="createShipmentForm" class="form-grid">
+        <label>Tracking code<input name="tracking_code" placeholder="EWS123456789" required></label>
+        <label>Service<input name="service" value="Express Worldwide"></label>
+        <label>Sender name<input name="sender_name"></label>
+        <label>Receiver name<input name="receiver_name"></label>
+        <label>Receiver email<input name="receiver_email" type="email"></label>
+        <label>Origin<input name="origin" placeholder="Lagos, Nigeria"></label>
+        <label>Destination<input name="destination" placeholder="London, United Kingdom" required></label>
+        <label>Status<select name="status"><option>Shipment Created</option><option>Picked Up</option><option>In Transit</option><option>Out for Delivery</option><option>Delivered</option><option>Delayed</option></select></label>
+        <label>Estimated delivery<input name="estimated_delivery" type="date"></label>
+        <label>Current location<input name="location"></label>
+        <label class="wide">Description<textarea name="description" rows="3" placeholder="Initial tracking note"></textarea></label>
+        <button class="wide" type="submit">Create shipment</button>
+      </form>
+      <p id="createResult" class="notice"></p>
+    </section>
+
+    <section id="messagesTab" class="tab-panel hidden">
+      <div class="panel-head"><div><h2>Messages</h2><p>Customer live-chat conversations are managed here.</p></div><button id="refreshChats" class="secondary">Refresh</button></div>
+      <div class="chat-layout">
+        <aside id="chatSessions" class="session-list"></aside>
+        <div class="conversation">
+          <div id="chatHeader" class="conversation-head">Select a conversation</div>
+          <div id="adminMessages" class="messages"></div>
+          <form id="replyForm" class="reply hidden"><input id="replyInput" placeholder="Type your reply…" maxlength="2000" required><button>Send</button></form>
+          <p id="chatResult" class="notice"></p>
+        </div>
+      </div>
+    </section>
+
+    <section id="notificationsTab" class="tab-panel hidden">
+      <div class="panel-head"><div><h2>Notifications</h2><p>Important activity from customers, shipments and your admin team.</p></div><div class="actions"><button id="markAllRead" class="secondary">Mark all read</button><button id="refreshNotifications" class="secondary">Refresh</button></div></div>
+      <div id="notificationList" class="notification-list"></div>
+    </section>
+
+    <section id="inviteTab" class="tab-panel hidden">
+      <div class="panel-head"><div><h2>Invite people</h2><p>Invite trusted teammates to create their own separate admin account.</p></div></div>
+      <div class="invite-layout">
+        <form id="inviteForm" class="invite-card">
+          <h3>Invite a team member</h3>
+          <label>Email address<input id="inviteEmail" type="email" placeholder="teammate@example.com" required></label>
+          <label>Role<select id="inviteRole"><option value="admin">Admin</option></select></label>
+          <button type="submit">Send invitation</button>
+          <p id="inviteResult" class="notice"></p>
+        </form>
+        <div class="invite-card">
+          <h3>Pending invitations</h3>
+          <p class="muted">Invitations expire after 48 hours.</p>
+          <div id="inviteList"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
 <script src="admin.js"></script>
-</body></html>
+</body>
+</html>
