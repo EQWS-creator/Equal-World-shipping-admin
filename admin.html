@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Equal World Shipping — Admin Dashboard</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<header class="topbar"><div><strong>Equal World Shipping</strong><span>Admin Dashboard</span></div><button id="logoutBtn" class="ghost hidden">Log out</button></header>
+<main class="container">
+  <section id="loginView" class="card login-card">
+    <h1>Admin sign in</h1><p>Manage shipments and reply to customer live chats.</p>
+    <form id="loginForm"><label>Email<input id="email" type="email" required autocomplete="username"></label><label>Password<input id="password" type="password" required autocomplete="current-password"></label><button>Sign in</button><p id="loginError" class="error"></p></form>
+  </section>
+  <section id="appView" class="hidden">
+    <div class="tabs"><button class="tab active" data-tab="shipments">Shipments</button><button class="tab" data-tab="chat">Live Chat</button></div>
+    <section id="shipmentsTab" class="tabpane">
+      <div class="grid two"><div class="card"><h2>Create shipment</h2><form id="shipmentForm" class="formgrid">
+        <label>Tracking code<input id="tracking_code" maxlength="32" placeholder="EWS123456789"></label>
+        <label>Sender name<input id="sender_name"></label><label>Receiver name<input id="receiver_name"></label><label>Receiver email<input id="receiver_email" type="email"></label>
+        <label>Origin<input id="origin" required placeholder="Lagos, Nigeria"></label><label>Destination<input id="destination" required placeholder="London, United Kingdom"></label>
+        <label>Service<input id="service" value="Express Worldwide"></label><label>Status<select id="status"><option>Pending</option><option>Picked Up</option><option>In Transit</option><option>Out for Delivery</option><option>Delivered</option></select></label>
+        <label>Estimated delivery<input id="estimated_delivery" type="date"></label><button type="submit">Create shipment</button><p id="shipmentFormMsg" class="notice"></p>
+      </form></div>
+      <div class="card"><h2>Selected shipment</h2><div id="selectedShipment"><p>Select a shipment below.</p></div><form id="eventForm" class="formgrid hidden"><h3>Add tracking event</h3><input id="event_shipment_id" type="hidden"><label>Status<select id="event_status"><option>Picked Up</option><option>In Transit</option><option>Out for Delivery</option><option>Delivered</option></select></label><label>Location<input id="event_location" required></label><label>Description<textarea id="event_description" rows="3"></textarea></label><button>Add event</button><p id="eventMsg" class="notice"></p></form></div></div>
+      <div class="card"><div class="row"><h2>Shipments</h2><button id="refreshShipments" class="ghost">Refresh</button></div><div class="tablewrap"><table><thead><tr><th>Tracking</th><th>Status</th><th>Origin</th><th>Destination</th><th>Updated</th><th></th></tr></thead><tbody id="shipmentRows"><tr><td colspan="6">Loading…</td></tr></tbody></table></div></div>
+    </section>
+    <section id="chatTab" class="tabpane hidden"><div class="grid chatgrid"><div class="card"><div class="row"><h2>Conversations</h2><button id="refreshChats" class="ghost">Refresh</button></div><div id="chatSessions" class="sessions"></div></div><div class="card chatwindow"><h2 id="chatTitle">Select a conversation</h2><div id="adminMessages" class="messages"></div><form id="replyForm" class="reply hidden"><textarea id="replyInput" rows="3" placeholder="Write a reply…"></textarea><button>Send reply</button><span id="replyMsg" class="notice"></span></form></div></div></section>
+  </section>
+</main>
+<script src="admin.js"></script>
+</body></html>
